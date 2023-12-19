@@ -1,0 +1,242 @@
+
+
+
+-- database para examen
+create database examen2
+go
+
+use examen2
+
+--Creacion de  tabla Usuarios
+
+Create table Usuarios
+(
+	UsuarioID int identity primary key, --identity autonumeracion y llave primaria, ella ya entiende que no puede ser nula
+	Nombre varchar(50) not null, -- unos 50 campos no puede ser nula
+	CorreoElectronico varchar(50),
+	Telefono varchar(15) unique
+)
+go --inicializa tabla usuario
+
+Create table Equipos
+(
+	EquipoID int identity primary key, --identity autonumeracion y llave primaria, ella ya entiende que no puede ser nula
+	TipoEquipo varchar(50) not null, -- unos 50 campos no puede ser nula
+	Modelo varchar(50),
+	UsuarioID int, --PK tabla usuario
+	constraint fk_UsusarioID foreign key (UsuarioID) references Usuarios(UsuarioID),--referencia llave foranea de la primaria de tabla usuarios
+)
+go --inicializa tabla Equipos
+
+Create table Reparaciones
+(
+	ReparacionID int identity primary key, --identity autonumeracion y llave primaria, ella ya entiende que no puede ser nula
+	EquipoID int, -- PK tabla Equipos
+	FechaSolicitud datetime,
+	Estado char(1),
+	constraint fk_EquipoID foreign key (EquipoID) references Equipos(EquipoID),--referencia llave foranea de la primaria de tabla Equipos
+)
+go --inicializa tabla Reparaciones
+
+Create table DetallesReparacion
+(
+	DetalleID int identity primary key, --identity autonumeracion y llave primaria, ella ya entiende que no puede ser nula
+	ReparacionID int, -- PK tabla reparaciones
+	Descripcion varchar(50),
+	FechaInicio datetime,
+	FechaFin datetime,
+	constraint fk_ReparacionID foreign key (ReparacionID) references Reparaciones(ReparacionID),--referencia llave foranea de la primaria de tabla Reparaciones
+)
+go --inicializa tabla DetallesReparacion
+
+Create table Tecnicos
+(
+	TecnicoID int identity primary key, --identity autonumeracion y llave primaria, ella ya entiende que no puede ser nula
+	Nombre varchar(50),
+	Especialidad varchar(20),
+)
+go --inicializa tabla Tecnicos
+
+Create table Asignaciones
+(
+	AsignacionID int identity primary key, --identity autonumeracion y llave primaria, ella ya entiende que no puede ser nula
+	ReparacionID int, -- PK tabla reparaciones
+	TecnicoID int,
+	FechaAsignacion datetime,
+	constraint fk_ReparacionID1 foreign key (ReparacionID) references Reparaciones(ReparacionID),--referencia llave foranea de la primaria de tabla Reparaciones
+	constraint fk_TecnicoID foreign key (TecnicoID) references Tecnicos(TecnicoID),--referencia llave foranea de la primaria de tabla Tecnicos
+)
+go --inicializa tabla DetallesReparacion
+
+
+
+-- Procesos Usuario
+Create procedure ConsultarUsuario
+As
+Begin
+Select*From Usuarios
+End
+go
+
+create procedure IngresarUsuario
+	@Nombre varchar(50),
+	@CorreoElectronico varchar(50),
+	@Telefono varchar(15)
+As
+Begin
+Insert into Usuarios(Nombre, CorreoElectronico, Telefono) Values (@Nombre, @CorreoElectronico, @Telefono)
+End
+
+Exec IngresarUsuario 'Juan Pedro','tavomon-93@gmail.com','987987987'
+Exec ConsultarUsuario
+go
+
+create procedure BorrarUsuario
+	@UsuarioID int
+As
+Begin
+Delete Usuarios where UsuarioId = @UsuarioID
+End
+
+go
+
+Create procedure ActualizarUsuario
+	@UsuarioID int,
+	@Nombre varchar(50),
+	@CorreoElectronico varchar(50),
+	@Telefono varchar(15)
+As
+Begin
+update Usuarios set Nombre = @Nombre, CorreoElectronico = @CorreoElectronico, Telefono=@Telefono where UsuarioID = @UsuarioID
+End
+
+exec ActualizarUsuario 5, 'Juan Perez', 'pedro@gmail.com','22477788'
+Exec ConsultarUsuario
+go
+-- Procesos Equipos
+Create procedure ConsultarEquipo
+As
+Begin
+Select*From Equipos
+End
+exec ConsultarEquipo
+go
+
+create procedure IngresarEquipo
+	@TipoEquipo varchar(50),
+	@Modelo varchar(50),
+	@UsuarioID int
+AS
+	Begin
+	Insert into Equipos(TipoEquipo, Modelo,UsuarioID) Values (@TipoEquipo, @Modelo, @UsuarioID)
+	End
+
+Exec IngresarEquipo'Maso','LMP',5
+Exec ConsultarEquipo
+go
+
+create procedure BorrarEquipo
+	@EquipoID int
+As
+Begin
+Delete Equipos where EquipoID = @EquipoID
+End
+
+exec BorrarEquipo 5
+Exec ConsultarEquipo
+go
+
+create procedure ActualizarEquipo
+	@EquipoID int,
+	@TipoEquipo varchar(50),
+	@Modelo varchar(50),
+	@UsuarioID int
+As
+Begin
+update Equipos set TipoEquipo = @TipoEquipo, Modelo = @Modelo, UsuarioID=@UsuarioID where EquipoID = @EquipoID
+End
+
+exec ActualizarEquipo 6, 'Maso', 'CLS',5
+Exec ConsultarEquipo
+go
+
+
+
+-- Procesos Tecnicos
+Create procedure ConsultarTecnicos
+As
+Begin
+Select*From Tecnicos
+End
+exec ConsultarTecnicos
+
+go
+
+create procedure IngresarTecnico
+	@Nombre varchar(50),
+	@Especialidad varchar(20)
+AS
+	Begin
+	Insert into Tecnicos(Nombre, Especialidad) Values (@Nombre, @Especialidad)
+	End
+
+Exec IngresarTecnico 'Pedro','General'
+Exec ConsultarTecnicos
+go
+
+create procedure BorrarTecnico
+	@TecnicoID int
+As
+Begin
+Delete Tecnicos where TecnicoID = @TecnicoID
+End
+
+exec BorrarTecnico 1
+Exec ConsultarTecnicos
+go
+
+create procedure ActualizarTecnico
+	@TecnicoID int,
+	@Nombre varchar(50),
+	@Especialidad varchar(20)
+As
+Begin
+update Tecnicos set Nombre = @Nombre, Especialidad = @Especialidad where TecnicoID = @TecnicoID
+End
+
+exec ActualizarTecnico 2, 'Carlos', 'General'
+Exec ConsultarTecnicos
+go
+
+
+create procedure ConsultarUsuarioFiltro
+	@UsuarioID int
+As
+Begin
+select * from Usuarios where UsuarioID = @UsuarioID
+End
+
+exec IngresarUsuario 'Carlos','tabom@gmail.com','77887788'
+Exec ConsultarUsuario
+
+exec ConsultarUsuarioFiltro 7
+go
+
+create procedure ConsultarEquipoFiltro
+	@EquipoID int
+As
+Begin
+select * from Equipos where EquipoID = @EquipoID
+End
+
+exec ConsultarEquipoFiltro 6
+go
+
+create procedure ConsultarTecnicoFiltro
+	@TecnicoID int
+As
+Begin
+select * from Tecnicos where TecnicoID = @TecnicoID
+End
+
+exec ConsultarTecnicoFiltro 1

@@ -1,0 +1,60 @@
+
+
+--database para examen
+
+create database DB_LuisMontoya
+go
+
+--creacion de tabla partidos
+Create table PPoliticos
+(
+	PartidoID int identity primary key, --identity autonumeracion y llave primaria, ella ya entiende que no puede ser nula
+	Nombre varchar(40) not null, -- unos 50 campos no puede ser nula
+)
+
+--llenado de tabla partidos
+Insert into PPoliticos (Nombre) values ('Partido Acción Ciudadana'),('Partido Unidad Social Cristiana'),('Partido Frente Amplio'),('Partido Restauración Nacional'),('Aquí Costa Rica Manda')
+
+
+
+
+--creacion de tabla encuestas
+
+CREATE TABLE Encuesta
+(
+    EncuestaID INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre VARCHAR(80) NOT NULL,
+    Edad INT NOT NULL,
+    CorreoElectronico VARCHAR(100) NOT NULL,
+    PartidoID INT,
+    FOREIGN KEY (PartidoID) REFERENCES PPoliticos(PartidoID)
+)
+
+
+-- Metodo para agregar una encuesta
+CREATE PROCEDURE AgregarEncuesta
+    @Nombre VARCHAR(80),
+    @Edad INT,
+    @CorreoElectronico VARCHAR(80),
+    @PartidoID INT
+AS
+BEGIN
+    INSERT INTO Encuesta (Nombre, Edad, CorreoElectronico, PartidoID)
+    VALUES (@Nombre, @Edad, @CorreoElectronico, @PartidoID);
+END;
+
+
+
+-- Metodo para reporte de encuestas
+CREATE PROCEDURE ReporteEncuesta
+AS
+BEGIN
+    SELECT 
+        Enc.EncuestaID,
+        Enc.Nombre,
+        Enc.Edad,
+        Enc.CorreoElectronico,
+        Part.Nombre AS PPolitico
+    FROM Encuesta Enc
+    INNER JOIN PPoliticos Part ON Enc.PartidoID = Part.PartidoID;
+END;
